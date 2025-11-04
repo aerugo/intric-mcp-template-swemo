@@ -1,12 +1,12 @@
-def devide_two_numbers(a: int, b: int) -> float:
+def divide_two_numbers(a: int, b: int) -> float:
     """
-    Devide two numbers together.
+    Divide two numbers together.
 
     args:
         a: The first number
         b: The second number
 
     returns:
-        The devision of the two numbers
+        The division of the two numbers
     """
     return a / b
