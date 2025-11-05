@@ -22,7 +22,7 @@ The server will start on `http://localhost:8000` by default.
 
 Add your exposed server URL in Intric's MCP connections settings. Intric will automatically discover all available tools and resources.
 
-Tip: You can use a service like ngrok to expose a https url binded to a local port and put that url (ending with /mcp) into Intric
+Tip: You can use a service like ngrok to expose a https url binded to a local port and put that url (ending with /mcp) into Intric for testing.
 
 ## Building Your Own MCP Server
 
