@@ -35,7 +35,7 @@ async def list_series_ids() -> dict:
     Returns:
         Dictionary containing metadata for all available series
     """
-    return await riksbanken_request("series")
+    return await riksbanken_request("series_ids")
 
 
 # Generic Data Fetcher
@@ -54,10 +54,10 @@ async def get_policy_data(series_id: str, policy_round: Optional[str] = None) ->
     Returns:
         Dictionary containing forecast and observation data
     """
-    params = {"series_id": series_id}
+    params = {"series": series_id}
     if policy_round:
-        params["policy_round"] = policy_round
-    return await riksbanken_request("data", params)
+        params["policy_round_name"] = policy_round
+    return await riksbanken_request("", params)
 
 
 # Real Economy Indicators

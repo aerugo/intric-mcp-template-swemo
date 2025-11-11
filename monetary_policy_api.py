@@ -8,6 +8,7 @@ Monetary Policy Data API.
 import asyncio
 import logging
 from typing import Any, Optional
+from urllib.parse import urlencode
 
 import httpx
 
@@ -34,17 +35,23 @@ async def riksbanken_request(
         httpx.HTTPError: For non-404, non-429 HTTP errors
     """
     url = f"{BASE_URL}/{endpoint}" if endpoint else BASE_URL
+    params = params or {}
+
+    # Use urlencode with safe=":" to preserve colons in policy round IDs (e.g., "2021:2")
+    query_string = urlencode(params, safe=":")
+    full_url = f"{url}?{query_string}" if query_string else url
+
     max_retries = 5
     retry_delays = [1, 2, 4, 8, 16]  # Exponential backoff delays in seconds
 
     async with httpx.AsyncClient(timeout=30.0) as client:
         for attempt in range(max_retries):
             try:
-                logger.debug(f"Requesting {url} with params {params}")
-                response = await client.get(url, params=params)
+                logger.debug(f"Requesting {full_url}")
+                response = await client.get(full_url)
 
                 if response.status_code == 404:
-                    logger.warning(f"Endpoint not found: {url}")
+                    logger.warning(f"Got 404 at {full_url}, returning empty.")
                     return {}
 
                 if response.status_code == 429:
@@ -59,13 +66,13 @@ async def riksbanken_request(
                         response.raise_for_status()
 
                 response.raise_for_status()
-                return response.json()
+                return response.json() if response.content else {}
 
             except httpx.HTTPError as e:
                 logger.error(f"HTTP error occurred: {e}")
                 if attempt == max_retries - 1:
                     raise
-                if response.status_code != 429:
+                if hasattr(e, 'response') and e.response.status_code != 429:
                     raise
 
     return {}
