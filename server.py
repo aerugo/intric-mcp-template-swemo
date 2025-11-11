@@ -5,6 +5,7 @@ This server provides access to Swedish economic data from Sveriges Riksbank's
 Monetary Policy API through the Model Context Protocol (MCP).
 """
 
+import os
 from fastmcp import FastMCP
 
 from monetary_policy_tools import (
@@ -100,4 +101,9 @@ mcp.tool()(get_nominal_exchange_rate_kix_index_data)
 
 # Start the server with streamable HTTP transport for Intric compatibility
 if __name__ == "__main__":
-    mcp.run(transport="streamable-http")
+    # Get host and port from environment variables for Kubernetes compatibility
+    # Default to 0.0.0.0 to allow external connections (required for K8s services)
+    host = os.environ.get("HOST", "0.0.0.0")
+    port = int(os.environ.get("PORT", "8000"))
+
+    mcp.run(transport="streamable-http", host=host, port=port)
