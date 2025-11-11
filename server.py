@@ -1,100 +1,103 @@
+"""
+Sveriges Riksbank Monetary Policy Data MCP Server.
+
+This server provides access to Swedish economic data from Sveriges Riksbank's
+Monetary Policy API through the Model Context Protocol (MCP).
+"""
+
 from fastmcp import FastMCP
 
-from resources import get_past_weather, tell_a_joke
-from tools import divide_two_numbers
+from monetary_policy_tools import (
+    # Discovery functions
+    list_policy_rounds,
+    list_series_ids,
+    # Generic data fetcher
+    get_policy_data,
+    # Real economy indicators
+    get_gdp_data,
+    get_unemployment_data,
+    get_hourly_labour_cost_data,
+    get_hourly_wage_na_data,
+    get_hourly_wage_nmo_data,
+    get_gdp_gap_data,
+    get_general_government_net_lending_data,
+    # Labor market
+    get_employed_persons_data,
+    get_labour_force_data,
+    # Demographics
+    get_population_data,
+    get_population_level_data,
+    # Inflation measures
+    get_cpi_data,
+    get_cpi_index_data,
+    get_cpi_yoy_data,
+    get_cpif_data,
+    get_cpif_yoy_data,
+    get_cpif_ex_energy_data,
+    get_cpif_ex_energy_index_data,
+    # GDP variants
+    get_gdp_level_saca_data,
+    get_gdp_level_ca_data,
+    get_gdp_level_na_data,
+    get_gdp_yoy_sa_data,
+    get_gdp_yoy_na_data,
+    # Monetary policy
+    get_policy_rate_data,
+    # Exchange rates
+    get_nominal_exchange_rate_kix_index_data,
+)
 
-# The FastMCP server class is the main object that represents the server.
-# The most simple way to create a server is to use the FastMCP class and pass the name of the server.
+# Initialize the FastMCP server
 mcp = FastMCP(
-    name="Intric MCP Template Server",
+    name="Sveriges Riksbank Monetary Policy Data MCP Server",
 )
 
+# Register Discovery Tools
+mcp.tool()(list_policy_rounds)
+mcp.tool()(list_series_ids)
 
-####### SIMPLE TOOLS IMPLEMENTATION #######
+# Register Generic Data Fetcher
+mcp.tool()(get_policy_data)
 
+# Register Real Economy Indicators
+mcp.tool()(get_gdp_data)
+mcp.tool()(get_unemployment_data)
+mcp.tool()(get_hourly_labour_cost_data)
+mcp.tool()(get_hourly_wage_na_data)
+mcp.tool()(get_hourly_wage_nmo_data)
+mcp.tool()(get_gdp_gap_data)
+mcp.tool()(get_general_government_net_lending_data)
 
-# If you are working with a single module, you can use the @mcp.tool decorator.
-# In this example, FastMCP will automatically use the function name (add_two_numbers) as the tool name.
-# The provided docstring will be used as the tool description.
-# An input schema will be generated from the function parameters as well as handle parameter validation and error reporting.
-# The description along with the input schema will be used by the Intric client to represent the tool for the LLM.
-@mcp.tool
-def add_two_numbers(a: int, b: int) -> int:
-    """
-    Add two numbers together.
+# Register Labor Market Tools
+mcp.tool()(get_employed_persons_data)
+mcp.tool()(get_labour_force_data)
 
-    args:
-        a: The first number
-        b: The second number
+# Register Demographics Tools
+mcp.tool()(get_population_data)
+mcp.tool()(get_population_level_data)
 
-    returns:
-        The sum of the two numbers
-    """
-    return a + b
+# Register Inflation Measures
+mcp.tool()(get_cpi_data)
+mcp.tool()(get_cpi_index_data)
+mcp.tool()(get_cpi_yoy_data)
+mcp.tool()(get_cpif_data)
+mcp.tool()(get_cpif_yoy_data)
+mcp.tool()(get_cpif_ex_energy_data)
+mcp.tool()(get_cpif_ex_energy_index_data)
 
+# Register GDP Variants
+mcp.tool()(get_gdp_level_saca_data)
+mcp.tool()(get_gdp_level_ca_data)
+mcp.tool()(get_gdp_level_na_data)
+mcp.tool()(get_gdp_yoy_sa_data)
+mcp.tool()(get_gdp_yoy_na_data)
 
-# When using the @mcp.tool decorator, you can use decorator arguments to override the ones FastMCP infer (as the example above):
-@mcp.tool(
-    name="add_two_numbers_v2",
-    description="Add two numbers together.",
-)
-def addition_implementation(a: int, b: int) -> int:
-    """
-    Internal function description which will be ignored.
-    """
-    return a + b
+# Register Monetary Policy Tools
+mcp.tool()(get_policy_rate_data)
 
+# Register Exchange Rate Tools
+mcp.tool()(get_nominal_exchange_rate_kix_index_data)
 
-# If you are working with multiple modules, you can import the functions directly into the server module and add them to the server via:
-mcp.tool()(divide_two_numbers)
-
-
-####### SIMPLE RESOURCES IMPLEMENTATION #######
-
-
-# Resources can be defined the same way as tools, but using the @mcp.resource decorator.
-@mcp.resource("resource://hello_world")
-def get_hello_world() -> str:
-    """
-    Provides a message
-    """
-    return "Hello, from Intric MCP Template Server!"
-
-
-# Just like with tools, you can use decorator arguments to override the ones FastMCP infer (as the example above):
-@mcp.resource(
-    uri="resource://hello_world_v2",
-    name="Greetings Resource",
-    description="Provides a message",
-)
-def get_hello_world_v2() -> str:
-    """
-    Internal function description which will be ignored.
-    """
-    return "Hello, from Intric MCP Template Server! (v2)"
-
-
-# If you are working with multiple modules, you can import the functions directly into the server module and add them to the server via:
-mcp.resource("resource://tell_a_joke")(tell_a_joke)
-
-
-####### SIMPLE RESOURCE TEMPLATES IMPLEMENTATION #######
-
-
-# Unlike resources, resource templates allow clients to request resources where the content depends on the request.
-# You can then make a resource that returns the response based on the request.
-# For example:
-@mcp.resource("weather://{city}/current")
-def get_current_weather(city: str) -> dict:
-    """Provide the current weather for a given city."""
-    return {"city": city, "temperature": 20, "description": "Sunny", "units": "C"}
-
-
-# If you are working with multiple modules, you can import the functions directly into the server module and add them to the server via:
-mcp.resource("weather://{city}/{date}/past_weather")(get_past_weather)
-
-####### RUNNING THE SERVER #######
-
-# Since Intric connects to the server via HTTP, we use the run method to start the server with the streamable HTTP transport.
+# Start the server with streamable HTTP transport for Intric compatibility
 if __name__ == "__main__":
     mcp.run(transport="streamable-http")
