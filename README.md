@@ -1,4 +1,4 @@
-# Sveriges Riksbank MCP Server
+# Swedish Monetary Policy Data MCP
 
 An MCP (Model Context Protocol) server that provides access to Swedish economic data from Sveriges Riksbank's Monetary Policy API. This server uses streamable HTTP transport for seamless integration with Intric.
 
